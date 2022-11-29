@@ -4,11 +4,11 @@ import org.junit.Test;
 import praktikum.Bun;
 
 public class BunTest {
-
-    private Bun bun = new Bun("NameBun",100.00f);
+    private Bun bun;
     private String nameBun = "NameBun";
     private float priceBun = 100.00f;
 
+    // Создаем булку с именем и стоимостью
     @Before
     public void createBun() {
         bun = new Bun(nameBun, priceBun);
