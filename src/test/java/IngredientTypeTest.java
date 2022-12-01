@@ -25,6 +25,6 @@ public class IngredientTypeTest {
     @Test
     public void testIngredientType() {
         String expected = ingredientType;
-        Assert.assertEquals("sdfsdf", expected, IngredientType.valueOf(ingredientType).toString());
+        Assert.assertEquals(expected, IngredientType.valueOf(ingredientType).toString());
     }
 }
