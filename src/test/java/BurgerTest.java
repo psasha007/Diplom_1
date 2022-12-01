@@ -8,53 +8,66 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import praktikum.*;
 
-import java.util.List;
-
 @RunWith(value = Parameterized.class)
 public class BurgerTest {
     Burger burger;
-    // Считаем список доступных булок из базы данных
-    List<Bun> bunsListTest;
-    // Считаем список доступных ингредиентов из базы данных
-    List<Ingredient> ingredientsListTest;
-    private Bun bun;
-    private Ingredient ingredient, ingredient2;
+
+    @Mock
+    Bun bun;
+    @Mock
+    Ingredient ingredient;
+
+    @Mock
+    Ingredient ingredient2;
+
+    private String bunName;
+    private float bunPrice;
+
+    private IngredientType ingType, ingType2;
+    private String ingName, ingName2;
+    private float ingPrice, ingPrice2;
+
     private String bunPrint;
-    private String ingredientPrint, ingredientPrint2;
+
+    private String ingPrint, ingPrint2;
     private String totalPriceBun;
     private String totalPriceIngredient;
     private String totalPriceTwoIngredient;
 
+    public BurgerTest(String bunName, float bunPrice,
+                      IngredientType ingType, String ingName, float ingPrice,
+                      IngredientType ingType2, String ingName2, float ingPrice2,
+                      String bunPrint, String ingPrint, String ingPrint2, String totalPriceBun,
+                      String totalPriceIngredient, String totalPriceTwoIngredient) {
 
-    public BurgerTest(Bun bun, Ingredient ingredient, Ingredient ingredient2, String bunPrint,
-                            String ingredientPrint, String ingredientPrint2, String totalPriceBun,
-                                String totalPriceIngredient, String totalPriceTwoIngredient) {
-        this.bun = bun;
-        this.ingredient = ingredient;
-        this.ingredient2 = ingredient2;
+        this.bunName = bunName;
+        this.bunPrice = bunPrice;
+        this.ingType = ingType;
+        this.ingName = ingName;
+        this.ingPrice = ingPrice;
+        this.ingType2 = ingType2;
+        this.ingName2 = ingName2;
+        this.ingPrice2 = ingPrice2;
         this.bunPrint = bunPrint;
-        this.ingredientPrint = ingredientPrint;
-        this.ingredientPrint2 = ingredientPrint2;
+        this.ingPrint = ingPrint;
+        this.ingPrint2 = ingPrint2;
         this.totalPriceBun = totalPriceBun;
         this.totalPriceIngredient = totalPriceIngredient;
         this.totalPriceTwoIngredient = totalPriceTwoIngredient;
     }
 
-    @Mock
-    Database database;
-    @Mock
-    List<Bun> bunsList;
-    @Mock
-    List<Ingredient> ingredientsList;
-
     @Parameterized.Parameters
-    public static Object[] getSumData()
-    {
+    public static Object[] getParamData() {
         return new Object[][]
                 {// передали тестовые данные
-                        {new Bun("black bun", 100),
-                                new Ingredient(IngredientType.SAUCE, "hot sauce", 100),
-                                new Ingredient(IngredientType.FILLING, "cutlet", 100),
+                        {"black bun",
+                                100f,
+                                IngredientType.SAUCE,
+                                "hot sauce",
+                                100f,
+                                IngredientType.FILLING,
+                                "cutlet",
+                                100f,
                                 "(==== black bun ====)\r\n",
                                 "= sauce hot sauce =\r\n",
                                 "= filling cutlet =\r\n",
@@ -62,9 +75,9 @@ public class BurgerTest {
                                 "Price: 300,000000\r\n",
                                 "Price: 400,000000\r\n"},
 
-                        {new Bun("white bun", 200),
-                                new Ingredient(IngredientType.FILLING, "cutlet", 100),
-                                new Ingredient(IngredientType.SAUCE, "hot sauce", 100),
+                        {"white bun", 200f,
+                                IngredientType.FILLING, "cutlet", 100f,
+                                IngredientType.SAUCE, "hot sauce", 100f,
                                 "(==== white bun ====)\r\n",
                                 "= filling cutlet =\r\n",
                                 "= sauce hot sauce =\r\n",
@@ -72,9 +85,9 @@ public class BurgerTest {
                                 "Price: 500,000000\r\n",
                                 "Price: 600,000000\r\n"},
 
-                        {new Bun("red bun", 300),
-                                new Ingredient(IngredientType.FILLING, "dinosaur", 200),
-                                new Ingredient(IngredientType.SAUCE, "chili sauce", 300),
+                        {"red bun", 300f,
+                                IngredientType.FILLING, "dinosaur", 200f,
+                                IngredientType.SAUCE, "chili sauce", 300f,
                                 "(==== red bun ====)\r\n",
                                 "= filling dinosaur =\r\n",
                                 "= sauce chili sauce =\r\n",
@@ -89,85 +102,97 @@ public class BurgerTest {
     public void createBurger() {
         MockitoAnnotations.initMocks(this);
         burger = new Burger();
-        database = new Database();
-        bunsListTest = database.availableBuns();
-        ingredientsListTest = database.availableIngredients();
     }
 
     // Проверка метода сборки бургера
     @Test
-    public void equalBunBurgerTest() throws Exception {
-        Mockito.when(bunsList.get(0)).thenReturn(bun);
-        burger.setBuns(bunsList.get(0));
+    public void equalBunBurgerTest() {
+
+        Mockito.when(bun.getName()).thenReturn(bunName);
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
+
+        burger.setBuns(bun);
+
         String expected = bunPrint + bunPrint + "\r\n" + totalPriceBun;
 
-//        System.out.println(expected);
-//        System.out.println(burger.getReceipt());
-
         String actual = burger.getReceipt();
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals("Ошибка, это не булка" + bunName, expected, actual);
     }
 
     // Проверка метода добавления ингредиента
     @Test
     public void equalIngredientBurgerTest() throws Exception {
-        Mockito.when(bunsList.get(0)).thenReturn(bun);
-        burger.setBuns(bunsList.get(0));
 
-        Mockito.when(ingredientsList.get(0)).thenReturn(ingredient);
-        burger.addIngredient(ingredientsList.get(0));
+        Mockito.when(bun.getName()).thenReturn(bunName);
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
 
-        String expected = bunPrint + ingredientPrint + bunPrint + "\r\n" + totalPriceIngredient;
+        Mockito.when(ingredient.getType()).thenReturn(ingType);
+        Mockito.when(ingredient.getName()).thenReturn(ingName);
+        Mockito.when(ingredient.getPrice()).thenReturn(ingPrice);
 
-//        System.out.println(expected);
-//        System.out.println(burger.getReceipt());
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+
+        String expected = bunPrint + ingPrint + bunPrint + "\r\n" + totalPriceIngredient;
 
         String actual = burger.getReceipt();
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals("Ошибка, это не бургер из " +
+                bunName + " " + ingName + " " + bunName, expected, actual);
     }
 
     // Проверка метода перемещения слоя с ингредиентом
     @Test
     public void equalMoveIngredientTest() throws Exception {
-        Mockito.when(bunsList.get(0)).thenReturn(bun);
-        burger.setBuns(bunsList.get(0));
+        Mockito.when(bun.getName()).thenReturn(bunName);
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
 
-        Mockito.when(ingredientsList.get(0)).thenReturn(ingredient);
-        burger.addIngredient(ingredientsList.get(0));
+        Mockito.when(ingredient.getType()).thenReturn(ingType);
+        Mockito.when(ingredient.getName()).thenReturn(ingName);
+        Mockito.when(ingredient.getPrice()).thenReturn(ingPrice);
 
-        Mockito.when(ingredientsList.get(0)).thenReturn(ingredient2);
-        burger.addIngredient(ingredientsList.get(0));
+        Mockito.when(ingredient2.getType()).thenReturn(ingType2);
+        Mockito.when(ingredient2.getName()).thenReturn(ingName2);
+        Mockito.when(ingredient2.getPrice()).thenReturn(ingPrice2);
+
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
+        burger.addIngredient(ingredient2);
 
         // Переместим слой с ингредиентом
         burger.moveIngredient(0, 1);
 
-        String expected = bunPrint + ingredientPrint2 + ingredientPrint + bunPrint + "\r\n" + totalPriceTwoIngredient;
+        String expected = bunPrint + ingPrint2 + ingPrint + bunPrint + "\r\n" + totalPriceTwoIngredient;
 
-//        System.out.println(expected);
-//        System.out.println(burger.getReceipt());
+        System.out.println(expected);
+        System.out.println(burger.getReceipt());
 
         String actual = burger.getReceipt();
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals("Ошибка, это не бургер из " +
+                bunName + " " + ingName2 + " " + ingName + " " + bunName, expected, actual);
     }
 
     // Проверка метода удаления ингредиентов
     @Test
     public void equalRemoveIngredientTest() throws Exception {
-        Mockito.when(bunsList.get(0)).thenReturn(bun);
-        burger.setBuns(bunsList.get(0));
+        Mockito.when(bun.getName()).thenReturn(bunName);
+        Mockito.when(bun.getPrice()).thenReturn(bunPrice);
 
-        Mockito.when(ingredientsList.get(0)).thenReturn(ingredient);
-        burger.addIngredient(ingredientsList.get(0));
+        Mockito.when(ingredient.getType()).thenReturn(ingType);
+        Mockito.when(ingredient.getName()).thenReturn(ingName);
+        Mockito.when(ingredient.getPrice()).thenReturn(ingPrice);
+
+        burger.setBuns(bun);
+        burger.addIngredient(ingredient);
 
         // Удалим ингредиент
         burger.removeIngredient(0);
 
         String expected = bunPrint + bunPrint + "\r\n" + totalPriceBun;
 
-//        System.out.println(expected);
-//        System.out.println(burger.getReceipt());
+        System.out.println(expected);
+        System.out.println(burger.getReceipt());
 
         String actual = burger.getReceipt();
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals("Ошибка, это не булка" + bunName, expected, actual);
     }
 }
